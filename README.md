@@ -2,14 +2,18 @@
 
 Academic PDF Summarization API powered by **FastAPI + Ollama**
 
-Note: This repository is for APIs only, but the complete application has a backend and a frontend.
+> ⚠️ This repository contains the backend API only.
+> The complete application includes a separate frontend service.
 
 **Version:** 0.2.0
-**Authors:** Yavé Emmanuel Vargas Márquez   (Backend)
-             Giovanna Inosuli Campos Flores (Frontend)
+**Authors:**
+
+* Yavé Emmanuel Vargas Márquez (Backend)
+* Giovanna Inosuli Campos Flores (Frontend)
+
 ---
 
-# Overview
+# 🚀 Overview
 
 YEGI API allows users to:
 
@@ -31,6 +35,7 @@ Designed for research environments and academic text processing.
 * **Langdetect** – Language detection
 * **python-dotenv** – Environment configuration
 * **Uvicorn** – ASGI server
+* **Docker & Docker Compose** – Containerized deployment
 
 ---
 
@@ -42,27 +47,17 @@ YEGI-API/
 ├── app/
 │   ├── api/
 │   │   ├── endpoints/
-│   │   │   ├── extract.py
-│   │   │   ├── models.py
-│   │   │   └── summarizer.py
 │   │   └── router.py
 │   │
 │   ├── controllers/
-│   │   ├── llm_controller.py
-│   │   ├── extract_headers.py
-│   │   ├── pdf_extractor.py
-│   │   └── text_preprocessor.py
-│   │
 │   ├── services/
-│   │   └── summarization_service.py
-│   │
 │   ├── core/
-│   │   └── config.py
-│   │
 │   └── main.py
 │
+├── Dockerfile
+├── docker-compose.yml
 ├── requirements.txt
-├── .env
+├── .dockerignore
 └── README.md
 ```
 
@@ -70,9 +65,11 @@ YEGI-API/
 
 # ⚙️ Requirements
 
+If running without Docker:
+
 * Python 3.11+
 * Ollama installed
-* At least 8GB RAM recommended (for 3B models)
+* 8GB RAM recommended (for 3B models)
 
 Install dependencies:
 
@@ -88,6 +85,7 @@ Create a `.env` file in the project root:
 
 ```
 FRONTEND_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+OLLAMA_HOST=http://ollama:11434
 ```
 
 In production:
@@ -100,7 +98,115 @@ CORS is restricted to these origins.
 
 ---
 
-# 🧪 Running Locally
+# 🐳 Quick Start (Recommended)
+
+### 1️⃣ Build & Start Services
+
+```bash
+docker compose up --build -d
+```
+
+This will start:
+
+* `yegi_api`
+* `yegi_ollama`
+
+---
+
+### 2️⃣ Pull LLM Model (First Time Only)
+
+```bash
+docker exec -it yegi_ollama ollama pull llama3.2:3b
+```
+
+---
+
+### 3️⃣ Access API Docs
+
+```
+http://localhost:8000/docs
+```
+---
+
+Perfecto 🔥 — eso es importante para que tu README quede completo y profesional.
+
+Te agrego una sección clara, lista para copiar y pegar dentro de tu README, justo después de **“Pull LLM Model (First Time Only)”**.
+
+---
+
+# ➕ Adding More Models to Ollama
+
+YEGI API supports any model installed in the Ollama container.
+
+---
+
+## 🔍 1️⃣ List Available Remote Models
+
+You can browse models from the official Ollama library:
+
+👉 [https://ollama.com](https://ollama.com)
+
+---
+
+## 📥 2️⃣ Pull a New Model (Docker)
+
+Run inside the Ollama container:
+
+```bash
+docker exec -it yegi_ollama ollama pull mistral:7b
+```
+
+Example models:
+
+```bash
+docker exec -it yegi_ollama ollama pull llama3.2:1b
+docker exec -it yegi_ollama ollama pull llama3.2:3b
+docker exec -it yegi_ollama ollama pull mistral:7b
+docker exec -it yegi_ollama ollama pull phi3:mini
+```
+
+---
+
+## 🖥 3️⃣ Pull Model (Without Docker)
+
+If running locally:
+
+```bash
+ollama pull mistral:7b
+```
+
+---
+
+## 📋 4️⃣ Verify Installed Models
+
+Docker:
+
+```bash
+docker exec -it yegi_ollama ollama list
+```
+
+Local:
+
+```bash
+ollama list
+```
+
+---
+
+## ⚠️ Resource Considerations
+
+Model size impacts RAM usage:
+
+| Model Size | Recommended RAM |
+| ---------- | --------------- |
+| 1B         | 4GB             |
+| 3B         | 8GB             |
+| 7B         | 16GB            |
+| 13B+       | 32GB+           |
+
+---
+
+# 🧪 Running Locally (Without Docker)
 
 Start Ollama:
 
@@ -108,60 +214,33 @@ Start Ollama:
 ollama serve
 ```
 
-Run the API:
+Run API:
 
 ```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000 --limit-concurrency 2
-```
-
-Access interactive docs:
-
-```
-http://localhost:8000/docs
+uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
 ---
 
 # 📌 API Endpoints
 
-## 📦 Get Available Models
-
-```
-GET /api/models/
-```
+## 📦 GET /api/models/
 
 Returns available Ollama models.
 
 ---
 
-## 📑 Extract PDF Headers
+## 📑 POST /api/extract/headers
 
-```
-POST /api/extract/headers
-```
-
-**Form-data:**
+Form-data:
 
 * `archivo_pdf` (file)
 
-Response:
-
-```json
-{
-  "total": 6,
-  "headers": ["Introduction", "Methods", "Results"]
-}
-```
-
 ---
 
-## 🧠 Summarize PDF
+## 🧠 POST /api/summarizer/
 
-```
-POST /api/summarizer/
-```
-
-**Form-data:**
+Form-data:
 
 | Field          | Type        |
 | -------------- | ----------- |
@@ -175,49 +254,40 @@ POST /api/summarizer/
 | language       | string      |
 | header_weights | JSON string |
 
----
+Example:
 
-# 🛡 Security & Stability Features
-
-* ✅ 30MB file size limit
-* ✅ Strict PDF validation
-* ✅ Header weight normalization
-* ✅ Automatic language detection
-* ✅ Global error handler
-* ✅ Restricted CORS
-* ✅ No internal stack trace exposure
-* ✅ Temporary file cleanup
+```bash
+-F 'header_weights={"Introduction":40,"Results":60}'
+```
 
 ---
 
-# ⚙ Performance Notes
+# 🛡 Security & Stability
 
-Since the API runs local LLM models:
+* 30MB file size limit
+* Strict PDF validation
+* Header weight normalization
+* Automatic language verification
+* Global error handler
+* Restricted CORS
+* No internal stack traces exposed
+* Temporary file cleanup
 
-* Performance depends heavily on RAM and CPU.
-* Recommended: limit concurrency using:
+---
+
+# ⚙ Performance Considerations
+
+Since this API runs local LLM models:
+
+* Performance depends on CPU and RAM
+* Recommended concurrency limit:
 
 ```bash
 --limit-concurrency 2
 ```
 
-* 3B models recommended for 8GB VPS environments.
-
----
-
-# 🐳 Docker (Optional)
-
-Build image:
-
-```bash
-docker build -t yegi-api .
-```
-
-Run container:
-
-```bash
-docker run -p 8000:8000 --env-file .env yegi-api
-```
+* 3B models recommended for 8GB VPS
+* For production, consider vertical scaling or GPU acceleration
 
 ---
 
@@ -225,26 +295,27 @@ docker run -p 8000:8000 --env-file .env yegi-api
 
 * No authentication
 * No rate limiting
-* No structured logging yet
-* Designed for single-node deployment
+* No persistent storage
+* Single-node deployment
+* No background job queue
+
+---
+
+# 🧠 Architecture
+
+Layered structure:
+
+* API Layer → HTTP handling
+* Controller Layer → Business logic
+* Service Layer → LLM interaction
+* Core Layer → Configuration
+
+Designed for maintainability and future scaling.
 
 ---
 
 # 📄 License
 
 Academic use – Internal research project.
-
----
-
-# 🧠 Architecture Notes
-
-This project follows a layered structure:
-
-* API Layer → Request handling
-* Controller Layer → Business logic orchestration
-* Service Layer → Model interaction
-* Core Layer → Configuration
-
-Designed for maintainability and future scaling.
 
 ---

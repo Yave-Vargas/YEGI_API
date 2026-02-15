@@ -9,7 +9,7 @@ async def get_models():
     models = controller.list_available_models()
 
     default_model = "llama3.2:3b" if "llama3.2:3b" in models else (
-        models[0] if models else "Models Not Found"
+        models["models"][0] if models else "Models Not Found"
     )
 
     return {
