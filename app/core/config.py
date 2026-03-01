@@ -9,7 +9,8 @@ class Settings:
         self.FRONTEND_ORIGINS: List[str] = self._get_origins()
 
     def _get_origins(self) -> List[str]:
-        origins = os.getenv("FRONTEND_ORIGINS", "")
+        origins = os.getenv("FRONTEND_ORIGIN", "http://localhost:3000")
+        #origins = os.getenv("FRONTEND_ORIGINS", "")
         return [
             origin.strip()
             for origin in origins.split(",")

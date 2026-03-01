@@ -13,8 +13,9 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    #allow_origins=["*"],
     #allow_origins=settings.FRONTEND_ORIGINS,
+    allow_origins=[settings.FRONTEND_ORIGIN] if settings.FRONTEND_ORIGIN else [],
     allow_credentials=True,
     allow_methods=["POST", "GET"],
     allow_headers=["*"],
@@ -28,3 +29,7 @@ async def global_exception_handler(request: Request, exc: Exception):
         status_code=500,
         content={"detail": "Internal server error"}
     )
+
+@app.get("/health")
+def health():
+    return {"status": "ok"}

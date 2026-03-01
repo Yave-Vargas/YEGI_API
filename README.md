@@ -11,6 +11,14 @@ Academic PDF Summarization API powered by **FastAPI + Ollama**
 * Yavé Emmanuel Vargas Márquez (Backend)
 * Giovanna Inosuli Campos Flores (Frontend)
 
+**Contributors:**
+
+* Jezreel Mejía Miranda
+* Mayra Alejandra Torres Hernández
+* Roberto Oswaldo Cruz Leija
+* Mario Cesar Ordoñez Gutiérrez
+* Erika Sánchez-Femat
+
 ---
 
 # 🚀 Overview
