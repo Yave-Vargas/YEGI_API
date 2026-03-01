@@ -15,7 +15,7 @@ app.add_middleware(
     CORSMiddleware,
     #allow_origins=["*"],
     #allow_origins=settings.FRONTEND_ORIGINS,
-    allow_origins=[settings.FRONTEND_ORIGIN] if settings.FRONTEND_ORIGIN else [],
+    allow_origins=[settings.FRONTEND_ORIGINS] if settings.FRONTEND_ORIGINS else [],
     allow_credentials=True,
     allow_methods=["POST", "GET"],
     allow_headers=["*"],
