@@ -2,10 +2,12 @@
 
 Academic PDF Summarization API powered by **FastAPI + Ollama**
 
-> ⚠️ This repository contains the backend API only.
+> [!WARNING]
+> This repository contains the backend API only.
 > The complete application includes a separate frontend service.
 
 **Version:** 0.2.0
+
 **Authors:**
 
 * Yavé Emmanuel Vargas Márquez (Backend)
@@ -73,11 +75,12 @@ YEGI-API/
 
 # ⚙️ Requirements
 
-If running without Docker:
-
-* Python 3.11+
-* Ollama installed
-* 8GB RAM recommended (for 3B models)
+> [!IMPORTANT]
+> If running without Docker:
+>
+> * Python 3.11+
+> * Ollama installed
+> * 8GB RAM recommended (for 3B models)
 
 Install dependencies:
 
@@ -89,7 +92,8 @@ pip install -r requirements.txt
 
 # 🔐 Environment Configuration
 
-Create a `.env` file in the project root:
+> [!IMPORTANT]
+> Create a `.env` file in the project root.
 
 ```
 FRONTEND_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
@@ -102,43 +106,43 @@ In production:
 FRONTEND_ORIGINS=https://your-frontend-domain.com
 ```
 
-CORS is restricted to these origins.
+> [!NOTE]
+> CORS is restricted to the origins defined in the `.env` file.
 
 ---
 
 # 🐳 Quick Start (Recommended)
 
-### 1️⃣ Build & Start Services
+## 1️⃣ Build & Start Services
 
 ```bash
 docker compose up --build -d
 ```
 
-This will start:
-
-* `yegi_api`
-* `yegi_ollama`
+> [!TIP]
+> This will automatically start:
+>
+> * `yegi_api`
+> * `yegi_ollama`
 
 ---
 
-### 2️⃣ Pull LLM Model (First Time Only)
+## 2️⃣ Pull LLM Model (First Time Only)
 
 ```bash
 docker exec -it yegi_ollama ollama pull llama3.2:3b
 ```
 
+> [!CAUTION]
+> Pulling models for the first time may take several minutes depending on your internet speed and model size.
+
 ---
 
-### 3️⃣ Access API Docs
+## 3️⃣ Access API Docs
 
 ```
 http://localhost:8000/docs
 ```
----
-
-Perfecto 🔥 — eso es importante para que tu README quede completo y profesional.
-
-Te agrego una sección clara, lista para copiar y pegar dentro de tu README, justo después de **“Pull LLM Model (First Time Only)”**.
 
 ---
 
@@ -203,7 +207,8 @@ ollama list
 
 ## ⚠️ Resource Considerations
 
-Model size impacts RAM usage:
+> [!WARNING]
+> Model size directly impacts RAM usage and server stability.
 
 | Model Size | Recommended RAM |
 | ---------- | --------------- |
@@ -228,9 +233,18 @@ Run API:
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
+> [!TIP]
+> Use `--reload` during development for automatic reload on code changes.
+
 ---
 
 # 📌 API Endpoints
+
+## 📦 GET /api/health/
+
+Returns the API status.
+
+---
 
 ## 📦 GET /api/models/
 
@@ -268,6 +282,9 @@ Example:
 -F 'header_weights={"Introduction":40,"Results":60}'
 ```
 
+> [!NOTE]
+> Header weights are automatically normalized if they do not sum to 100.
+
 ---
 
 # 🛡 Security & Stability
@@ -281,14 +298,17 @@ Example:
 * No internal stack traces exposed
 * Temporary file cleanup
 
+> [!IMPORTANT]
+> This version does not include authentication or rate limiting.
+
 ---
 
 # ⚙ Performance Considerations
 
-Since this API runs local LLM models:
+> [!CAUTION]
+> Since this API runs local LLM models, performance depends heavily on CPU and RAM availability.
 
-* Performance depends on CPU and RAM
-* Recommended concurrency limit:
+Recommended concurrency limit:
 
 ```bash
 --limit-concurrency 2
@@ -306,6 +326,9 @@ Since this API runs local LLM models:
 * No persistent storage
 * Single-node deployment
 * No background job queue
+
+> [!WARNING]
+> Not production-hardened for public exposure without additional security layers.
 
 ---
 
