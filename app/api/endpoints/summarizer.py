@@ -12,8 +12,8 @@ MAX_FILE_SIZE = 30 * 1024 * 1024  # 30 MB
 async def summarizer(
     archivo_pdf: UploadFile = File(...),
     model: str = Form(default="llama3.2:3b"),
-    temperature: float = Form(default=0.5),
-    top_p: float = Form(default=0.8),
+    temperature: float = Form(default=0.1),
+    top_p: float = Form(default=0.7),
     repeat_penalty: float = Form(default=1.1),
     repeat_last_n: int = Form(default=32),
     num_predict: int = Form(default=1000),
