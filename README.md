@@ -1,3 +1,8 @@
+![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green)
+![Auth](https://img.shields.io/badge/Auth-API%20Key-blue)
+![Logging](https://img.shields.io/badge/Logging-Structured-success)
+![Status](https://img.shields.io/badge/Status-Active-brightgreen)
+
 # 📘 YEGI API
 
 Academic PDF Summarization API powered by **FastAPI + Ollama**
@@ -6,7 +11,7 @@ Academic PDF Summarization API powered by **FastAPI + Ollama**
 > This repository contains the backend API only.
 > The complete application includes a separate frontend service.
 
-**Version:** 0.2.0
+**Version:** 0.2.1
 
 **Authors:**
 
@@ -27,7 +32,7 @@ Academic PDF Summarization API powered by **FastAPI + Ollama**
 
 YEGI API allows users to:
 
-* 📄 Upload academic PDF files (max 30MB)
+* 📄 Upload academic PDF files (max 15MB)
 * 🧩 Extract structured section headers
 * 🧠 Generate scientific summaries using local LLMs (Ollama)
 * 🎯 Apply weighted emphasis to document sections
@@ -58,12 +63,13 @@ YEGI-API/
 │   ├── api/
 │   │   ├── endpoints/
 │   │   └── router.py
-│   │
 │   ├── controllers/
-│   ├── services/
 │   ├── core/
+│   ├── services/
+│   ├── workers/
 │   └── main.py
 │
+├── logs
 ├── Dockerfile
 ├── docker-compose.yml
 ├── requirements.txt
@@ -95,9 +101,14 @@ pip install -r requirements.txt
 > [!IMPORTANT]
 > Create a `.env` file in the project root.
 
-```
+```env
 FRONTEND_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 OLLAMA_HOST=http://ollama:11434
+
+# API Keys
+API_KEYS_INTERNAL=your_internal_key
+API_KEYS_FRONTEND=your_frontend_key
+API_KEYS_PUBLIC=your_public_key
 ```
 
 In production:
@@ -110,6 +121,49 @@ FRONTEND_ORIGINS=https://your-frontend-domain.com
 > CORS is restricted to the origins defined in the `.env` file.
 
 ---
+
+## 🔐 API Authentication
+
+YEGI API uses **API Key authentication** to control access.
+
+### 🔑 API Key Types
+
+| Type       | Description                                        |
+| ---------- | -------------------------------------------------- |
+| `internal` | Development & private usage                        |
+| `frontend` | Used by the official frontend (restricted by CORS) |
+| `public`   | External access with limited capabilities          |
+
+> [!NOTE]
+> These keys are defined in the `.env` file.
+
+---
+
+### 📥 How to Use
+Include your API key in request headers:
+
+```http
+x-api-key: YOUR_API_KEY
+```
+
+---
+
+### ⚠️ Restrictions
+
+* Public API keys have limited file size and features
+* Frontend keys are restricted to allowed origins
+* Internal keys have full access
+
+---
+
+### 🧪 Example
+
+```bash
+curl -X POST http://localhost:8000/api/summarizer/ \
+  -H "x-api-key: YOUR_API_KEY" \
+  -F "archivo_pdf=@test.pdf"
+```
+
 
 # 🐳 Quick Start (Recommended)
 
@@ -289,7 +343,7 @@ Example:
 
 # 🛡 Security & Stability
 
-* 30MB file size limit
+* 15MB file size limit (You can configure in endpoints)
 * Strict PDF validation
 * Header weight normalization
 * Automatic language verification
@@ -297,12 +351,57 @@ Example:
 * Restricted CORS
 * No internal stack traces exposed
 * Temporary file cleanup
+* API Key authentication
+* Request tracing via request_id
+* Structured logging
+
+> [!WARNING]
+> Never expose your API keys in frontend code or public repositories.
 
 > [!IMPORTANT]
-> This version does not include authentication or rate limiting.
+> This API includes API Key authentication and request-level logging.
+> Rate limiting and usage tracking are planned for future versions.
 
 ---
 
+## 📊 Logging & Monitoring
+
+YEGI API includes structured logging for observability and debugging.
+
+### 🔍 Features
+
+* Unique `request_id` generated per request
+* Full request lifecycle logging (START → END)
+* Execution time tracking
+* Error logging with traceability
+* Service-level logs for summarization processes
+* Correlation across API layers (endpoint → service)
+
+---
+
+### 🧾 Example Logs
+
+```text
+[a1b2] START POST /api/summarizer
+[a1b2] Request received | file=paper.pdf
+[a1b2] Start summarization | model=llama3.2
+[a1b2] Summarization completed | duration=8.2s
+[a1b2] END POST /api/summarizer | status=200 time=8.3s
+```
+
+---
+
+### 📁 Log Output
+
+Logs are written to:
+
+```
+yegi.log (configurable in logging_config.py)
+```
+
+And also streamed to console.
+
+---
 # ⚙ Performance Considerations
 
 > [!CAUTION]
@@ -311,7 +410,7 @@ Example:
 Recommended concurrency limit:
 
 ```bash
---limit-concurrency 2
+uvicorn app.main:app --limit-concurrency 2
 ```
 
 * 3B models recommended for 8GB VPS
@@ -319,9 +418,8 @@ Recommended concurrency limit:
 
 ---
 
-# ⚠️ Limitations (v0.2.0)
+# ⚠️ Limitations (v0.2.1)
 
-* No authentication
 * No rate limiting
 * No persistent storage
 * Single-node deployment
@@ -336,10 +434,10 @@ Recommended concurrency limit:
 
 Layered structure:
 
-* API Layer → HTTP handling
-* Controller Layer → Business logic
-* Service Layer → LLM interaction
-* Core Layer → Configuration
+* API Layer → Request handling & validation
+* Controller Layer → Orchestration logic
+* Service Layer → Core processing (LLM, PDF)
+* Core Layer → Configuration, security & logging
 
 Designed for maintainability and future scaling.
 

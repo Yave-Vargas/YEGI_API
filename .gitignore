@@ -15,8 +15,14 @@ __pycache__/
 .idea/
 
 # Docker
+logs/
 *.log
 docker-compose.override.yml
 
 # Git
 .git/
+
+# OS files
+.DS_Store
+Thumbs.db
+storage/temp/*

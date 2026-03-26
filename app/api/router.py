@@ -1,5 +1,9 @@
 from fastapi import APIRouter
 from app.api.endpoints import models, summarizer, extract
+import logging
+
+logger = logging.getLogger("yegi.router")
+logger.info("Routers initialized (models, summarizer, extract)")
 
 api_router = APIRouter()
 
