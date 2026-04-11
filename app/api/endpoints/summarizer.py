@@ -65,14 +65,26 @@ def parse_header_weights(header_weights: str):
     except Exception as e:
         raise HTTPException(400, f"Invalid header_weights: {str(e)}")
 
-def build_options(temperature, top_p, repeat_penalty, repeat_last_n, num_predict):
-    return {
+def build_options(
+    temperature,
+    top_p,
+    repeat_penalty,
+    repeat_last_n,
+    num_predict,
+    seed=None
+):
+    options = {
         "temperature": temperature,
         "top_p": top_p,
         "repeat_penalty": repeat_penalty,
         "repeat_last_n": repeat_last_n,
         "num_predict": num_predict,
     }
+
+    if seed is not None:
+        options["seed"] = seed
+
+    return options
 
 # SYNC ENDPOINT
 @router.post("/")
@@ -86,6 +98,7 @@ async def summarizer(
     repeat_penalty: float = Form(1.1),
     repeat_last_n: int = Form(32),
     num_predict: int = Form(1000),
+    seed: int | None = Form(None),
     language: str = Form("español"),
     header_weights: str = Form("{}"),
 ):
@@ -99,7 +112,14 @@ async def summarizer(
     header_weights_dict = parse_header_weights(header_weights)
 
     ruta_archivo = save_temp_file(file_content)
-    options_dict = build_options(temperature, top_p, repeat_penalty, repeat_last_n, num_predict)
+    options_dict = build_options(
+        temperature,
+        top_p,
+        repeat_penalty,
+        repeat_last_n,
+        num_predict,
+        seed
+    )
 
     service = SummarizationService()
 
@@ -136,6 +156,7 @@ async def summarizer_async(
     repeat_penalty: float = Form(1.1),
     repeat_last_n: int = Form(32),
     num_predict: int = Form(1000),
+    seed: int | None = Form(None),
     language: str = Form("español"),
     header_weights: str = Form("{}"),
 ):
@@ -149,7 +170,14 @@ async def summarizer_async(
     header_weights_dict = parse_header_weights(header_weights)
 
     ruta_archivo = save_temp_file(file_content)
-    options_dict = build_options(temperature, top_p, repeat_penalty, repeat_last_n, num_predict)
+    options_dict = build_options(
+        temperature,
+        top_p,
+        repeat_penalty,
+        repeat_last_n,
+        num_predict,
+        seed
+    )
 
     job_id = create_job({
         "file_path": ruta_archivo,
